@@ -1,1 +1,1 @@
-web: gunicorn -w 1 --threads 100 app:app
+web: gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 --threads 100 app:app
