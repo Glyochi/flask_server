@@ -26,6 +26,10 @@ vm = None
 if __name__ == '__main__':
     socketio.run(app)
 
+@socketio.on('/')
+def handle_connect():
+    return 'heroku'
+ 
 
 @socketio.on('connect')
 def handle_connect():
@@ -35,13 +39,9 @@ def handle_connect():
  
  
 @socketio.on('initialize')
-def handle_initialize(clientID, frameRate, grayScale): 
-    if grayScale:
-        SVMDict[clientID] = ServerVideoManager(frameRate, socketio, clientID, grayScale)
-        SVMDict[clientID].start()
-    else:
-        SVMDict[clientID] = ServerVideoManager(frameRate, socketio, clientID, grayScale)
-        SVMDict[clientID].start()
+def handle_initialize(clientID, frameRate, isEnhanced): 
+    SVMDict[clientID] = ServerVideoManager(frameRate, socketio, clientID, isEnhanced)
+    SVMDict[clientID].start()
 
 
     # tempThread = Thread(target=emitter, args=[vm])
@@ -63,11 +63,9 @@ def handle_disconnect():
 
 @socketio.on('frameToServer')
 def handle_frame_to_server(clientID, type_and_base64_frame, frameID):
-    # print(SVMDict[clientID].testingGrayScale)
-    # if SVMDict[clientID].testingGrayScale:
-    #     SVMDict[clientID].processNextFrame(detectFaceVanillaGrayScale, type_and_base64_frame, frameID, 'frameToClient')
-    # else:
-        SVMDict[clientID].processNextFrame(detectFaceVanilla, type_and_base64_frame, frameID, 'frameToClient')
+    data = {'base64_responseFrame': type_and_base64_frame, 'frameID': frameID}
+    socketio.emit('frameToClient', data, to=clientID)
+    # SVMDict[clientID].processNextFrame(detectFaceVanilla, type_and_base64_frame, frameID, 'frameToClient')
 
 def detectFaceVanilla(type_and_base64_image):
     
@@ -80,9 +78,8 @@ def detectFaceVanilla(type_and_base64_image):
 
     # Converting to BGR format that openCV reads, then convert to grayscale to increase faces detected
     img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
-    # img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-    GlyLibrary.findAndDrawFacesVanilla(img)
+    GlyLibrary.findAndDrawFacesVanilla(img, 'classifier/haarcascade_frontalface_default.xml')
 
 
     buffered = io.BytesIO()

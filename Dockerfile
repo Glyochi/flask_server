@@ -8,11 +8,13 @@ ENV PYTHONUNBUFFERED True
 # Copy local code to the container image.
 ENV APP_HOME /app
 WORKDIR $APP_HOME
-COPY . ./
+COPY classifier .
+COPY app.py .
 
 # Install production dependencies.
-RUN pip install -r requirements.txt
-RUN pip install Flask gunicorn
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+RUN pip3 install Flask gunicorn
 # For opencv2
 RUN apt-get update
 RUN apt-get install ffmpeg libsm6 libxext6  -y
@@ -22,4 +24,4 @@ RUN apt-get install ffmpeg libsm6 libxext6  -y
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
 # Timeout is set to 0 to disable the timeouts of the workers to allow Cloud Run to handle instance scaling.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
+CMD exec gunicorn --bind :$PORT --workers 2 --threads 20 --timeout 0 app:app
