@@ -12,7 +12,10 @@ COPY . ./
 
 # Install production dependencies.
 RUN pip install -r requirements.txt
-RUN pip install gunicorn
+RUN pip install Flask gunicorn
+# For opencv2
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6  -y
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
