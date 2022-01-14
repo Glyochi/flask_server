@@ -11,6 +11,7 @@ from glyFacialDetection.ServerVideoManager import ServerVideoManager
 
 from threading import Thread
 import time
+import os 
 
 from werkzeug.wrappers import request
 
@@ -24,7 +25,8 @@ vm = None
 # tempThread = None
 
 if __name__ == '__main__':
-    socketio.run(app)
+    
+    socketio.run(app,  port=int(os.environ.get('PORT', 5000)))
 
 @socketio.on('/')
 def handle_connect():
