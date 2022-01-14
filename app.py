@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
 @socketio.on('/')
 def handle_connect():
-    return 'heroku'
+    return "<h1>Welcome to CodingX</h1>"
  
 
 @socketio.on('connect')
