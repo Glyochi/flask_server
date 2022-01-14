@@ -9,7 +9,7 @@ Flask==2.0.2
 Flask-SocketIO==5.1.1
 fonttools==4.28.5
 gevent==21.12.0
-glyFacialDetection==0.0.12
+glyFacialDetection==0.0.18
 greenlet==1.1.2
 gunicorn==20.1.0
 itsdangerous==2.0.1
