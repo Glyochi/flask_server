@@ -63,6 +63,7 @@ def handle_disconnect():
 
 @socketio.on('frameToServer')
 def handle_frame_to_server(clientID, type_and_base64_frame, frameID):
+    print(frameID)
     data = {'base64_responseFrame': type_and_base64_frame, 'frameID': frameID}
     socketio.emit('frameToClient', data, to=clientID)
     # SVMDict[clientID].processNextFrame(detectFaceVanilla, type_and_base64_frame, frameID, 'frameToClient')
