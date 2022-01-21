@@ -1,11 +1,10 @@
 from threading import Thread, Lock
 from .FrameThread import FrameThread
 import time
-import json
 
 class ServerVideoManager:
-    def __init__(self, frameRate, socket, clientID, isEnhanced):
-        self.isEnhanced = isEnhanced
+    def __init__(self, frameRate, socket, clientID, coordinates):
+        self.coordinates = coordinates
 
         # Used for the emitting thread
         self.playing = True
@@ -45,7 +44,7 @@ class ServerVideoManager:
 
         threadID = self.freeThreadIDs.pop(0)
 
-        self.frameThreads[threadID] = FrameThread(threadID, frameID, customFunction, frame, self.frameLock, endPoint)
+        self.frameThreads[threadID] = FrameThread(threadID, frameID, customFunction, frame, endPoint)
         self.frameThreads[threadID].start()
         
     
@@ -107,7 +106,7 @@ def emitter(videoManager):
                     temp = frameThreads[finishedThreadIDs[latestFrameIDIndex]]
                     videoManager.returnedFrameID = latestFrameID
 
-                    if videoManager.isEnhanced:
+                    if videoManager.coordinates:
                         data = {'faceCoordinates': temp.output, 'frameID': temp.frameID}
                         videoManager.socket.emit(temp.endPoint, data, to=videoManager.clientID)
                     else:

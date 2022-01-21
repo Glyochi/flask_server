@@ -9,36 +9,18 @@ import time
 import numpy as np
 from PIL import Image
 from glyLib.ServerVideoManager import ServerVideoManager
+from glyLib.EnhancedServerVideoManager import EnhancedServerVideoManager
 from glyLib import GlyLibrary
 
 app = Flask(__name__, template_folder="templates")
 socketio = SocketIO(app, cors_allowed_origins="*")
+SVMDict = dict()
+
 
 if __name__ == '__main__':
     socketio.run(app, port=int(os.environ.get('PORT', 8080)))
 
-@app.route('/')
-def index():
-    return render_template("index.html")
 
-
-# @socketio.on('connect')
-# def handle_connection():
-#     print("connected")
-
-
-# @socketio.on('chatMessage')
-# def handle_chatMessage(msg, id):
-#     print("client said:", msg)
-#     socketio.emit('response', msg, to=id)
-
-
-# @socketio.on('disconnect')
-# def handle_disconnect():
-#     print('disconnected')
-
-########################
-SVMDict = dict()
 
 
 @socketio.on('connect')
@@ -47,9 +29,15 @@ def handle_connect():
  
  
 @socketio.on('initialize')
-def handle_initialize(clientID, frameRate, isEnhanced): 
+def handle_initialize(clientID, frameRate, coordinates): 
     print("initialize")
-    SVMDict[clientID] = ServerVideoManager(frameRate, socketio, clientID, isEnhanced)
+    SVMDict[clientID] = ServerVideoManager(frameRate, socketio, clientID, coordinates)
+    SVMDict[clientID].start()
+
+@socketio.on('enhanced_initialize')
+def handle_initialize(clientID, frameRate, coordinates): 
+    print("enhanced_initialize")
+    SVMDict[clientID] = EnhancedServerVideoManager(frameRate, socketio, clientID, coordinates)
     SVMDict[clientID].start()
 
 
@@ -79,9 +67,10 @@ def handle_frame_to_server(clientID, type_and_base64_frame, frameID):
         print("EXCEPTION in frameToServer")
         print("SVM instance for clientID", clientID, "has already been cleared. This might be because client lost connection")
     else:
-        start_time = time.time()
+        # start_time = time.time()
         SVMDict[clientID].processNextFrame(detectFaceVanilla, type_and_base64_frame, frameID, 'frameToClient')
-        print("----------- %s seconds -----------" % (time.time() - start_time))
+        # print("----------- %s seconds -----------" % (time.time() - start_time))
+
 
 @socketio.on('frameToServer_coordinates')
 def handle_frame_to_server(clientID, type_and_base64_frame, frameID):
@@ -95,9 +84,40 @@ def handle_frame_to_server(clientID, type_and_base64_frame, frameID):
         print("SVM instance for clientID", clientID, "has already been cleared. This might be because client lost connection")
 
     else:
-        start_time = time.time()
+        # start_time = time.time()
         SVMDict[clientID].processNextFrame(detectFaceVanilla_coordinates, type_and_base64_frame, frameID, 'frameToClient_coordinates')
-        print("----------- %s seconds -----------" % (time.time() - start_time))
+        # print("----------- %s seconds -----------" % (time.time() - start_time))
+
+
+@socketio.on('enhanced_frameToServer_coordinates')
+def handle_frame_to_server(clientID, type_and_base64_frame, frameID):
+
+    if not (clientID in SVMDict):
+        print("ERROR in frameToServer")
+        print("ClientID", clientID, "does not exist in the SVMDict")
+
+    elif SVMDict[clientID] == None:
+        print("EXCEPTION in frameToServer")
+        print("SVM instance for clientID", clientID, "has already been cleared. This might be because client lost connection")
+
+    else:
+        # start_time = time.time()
+
+
+        type, base64_frame = type_and_base64_frame.split(',')
+
+        # Creating a PIL image (RGB)
+        frameData = base64.b64decode(base64_frame)
+        frame = Image.open(io.BytesIO(frameData))
+
+        # Converting to BGR format that openCV reads, then convert to grayscale to increase faces detected
+        frame = cv.cvtColor(np.array(frame), cv.COLOR_RGB2BGR)
+
+
+        SVMDict[clientID].processNextFrame(frame, frameID, 'enhanced_frameToClient_coordinates')
+
+        # print("----------- %s seconds -----------" % (time.time() - start_time))
+
 
 def detectFaceVanilla(type_and_base64_image):
     
@@ -111,7 +131,7 @@ def detectFaceVanilla(type_and_base64_image):
     # Converting to BGR format that openCV reads, then convert to grayscale to increase faces detected
     img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
 
-    GlyLibrary.findAndDrawFacesVanilla(img, 'classifier/haarcascade_frontalface_default.xml')
+    GlyLibrary.findAndDrawFacesVanilla(img)
 
 
     buffered = io.BytesIO()
@@ -135,7 +155,7 @@ def detectFaceVanilla_coordinates(type_and_base64_image):
     # Converting to BGR format that openCV reads, then convert to grayscale to increase faces detected
     img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
 
-    temp = GlyLibrary.findAndDrawFacesVanilla_coordinates(img, 'classifier/haarcascade_frontalface_default.xml')
+    temp = GlyLibrary.findAndDrawFacesVanilla_coordinates(img)
     
     return temp
 

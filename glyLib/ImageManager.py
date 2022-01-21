@@ -1,10 +1,12 @@
 
+from email.quoprimime import unquote
 import cv2 as cv
 from .Point import Point
 from .DetectedArea import DetectedArea
 from .DetectedArea import DetectedFace
 from .HelperFunctions import *
 import numpy as np
+import os
 
 
 """ 
@@ -26,20 +28,24 @@ import numpy as np
 
 """
 
+package_directory = os.path.dirname(os.path.abspath(__file__))
+eye_path = os.path.join(package_directory, "classifier/haarcascade_eye.xml")
+face_path = os.path.join(package_directory, "classifier/haarcascade_frontalface_default.xml")
 
 class ImageManager:
     """
     A manager that stores the actual image and can do image processing function on it. This object will be used to take care of facial detection.
     """
-    haarcascade_eye = cv.CascadeClassifier("classifier/haarcascade_eye.xml")
-    haarcascade_face = cv.CascadeClassifier("classifier/haarcascade_frontalface_default.xml")
+    
+    haarcascade_eye = cv.CascadeClassifier(eye_path)
+    haarcascade_face = cv.CascadeClassifier(face_path)
     # haarcascade_face = cv.CascadeClassifier("classifier/lbpcascaade_frontalface_improved.xml")
-    haarcascade_nose = cv.CascadeClassifier("classifier/haarcascade_nose.xml")
+    # haarcascade_nose = cv.CascadeClassifier("classifier/haarcascade_nose.xml")
     HARDCODED_similarSizeScale = 0.7
     HARDCODED_pairOfEyesDistanceRange = (1.5, 3.5)
     # eye and face min and max dimensions in a 500pixel x ? pixel images
-    HARDCODED_eyeMinDimensions = (10, 10)
-    HARDCODED_eyeMaxDimensions = (200, 200)
+    HARDCODED_eyeMinDimensions = (40, 40)
+    HARDCODED_eyeMaxDimensions = (120, 120)
     HARDCODED_faceMinDimensions = (80, 80)
     HARDCODED_faceMaxDimensions = (500, 500)
 
@@ -578,6 +584,40 @@ class ImageManager:
             :return an array of faces as detectedFace objects
         """
         return self.findFacesUsingPairOfEyes(self.findPairsOfEyesCounterClockwiseMultipleAngles(angles, scaleFactor, minNeighbors), scaleFactor, minNeighbors)
+
+    
+
+    def findFacesCounterClockwiseMultipleAngles_Alternative(self, angles, scaleFactor, minNeighbors):
+        """
+        Find faces in the image and return them as detectedArea objects in an array
+        This method, unlike the other one, just going to scan for faces in multiple angles instead of eyes. Then merge them together. Scanning for eyes is only for finding the faces' rotations
+            :param angles: counter clockwise angles by which the image is rotated
+            :param scaleFactor: paramter for detectMultiScale
+            :param minNeighbors: parameter for detectMultiScale
+            :return an array of faces as detectedFace objects
+        """     
+
+        
+        detectedFaces = []
+
+        for angle in angles:
+            (detectedAreas, rotatedCenter) = self.HELPER_runHaarDetectionCounterClockwiseAngle(self.haarcascade_face, self.HARDCODED_faceMinDimensions, self.HARDCODED_faceMaxDimensions, angle, scaleFactor, minNeighbors)
+            
+            print(detectedAreas)
+            for area in detectedAreas:
+                face = DetectedFace((area.upperLeft.x, area.upperLeft.y), area.dimensions, angle)
+                face.rotateAreaClockwise(rotatedCenter, angle)
+
+                unique = True
+                for detectedFace in detectedFaces:
+                    if face.similarSize(detectedFace) and face.overlap(detectedFace):
+                        unique = False
+                        break
+                
+                if unique:
+                    detectedFaces.append(face)
+        
+        return detectedFaces
 
                 
 

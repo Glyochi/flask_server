@@ -12,7 +12,7 @@ import sys
 
 
 
-def findAndDrawFacesVanilla(frame, path):
+def findAndDrawFacesVanilla(frame):
     """
     Create a grayscaled version of the image, find the faces, and draw them on the original image
     All using vanilla facial detection that came with opencv
@@ -38,7 +38,7 @@ def findAndDrawFacesVanilla(frame, path):
 
       
 
-def findAndDrawFacesVanilla_coordinates(frame, path):
+def findAndDrawFacesVanilla_coordinates(frame):
     """
     Create a grayscaled version of the image, find the faces, and draw them on the original image
     All using vanilla facial detection that came with opencv
@@ -62,6 +62,8 @@ def findAndDrawFacesVanilla_coordinates(frame, path):
     faces = faces.tolist()
     return faces
         
+
+      
 
       
 

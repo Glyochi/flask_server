@@ -1,12 +1,16 @@
 import math
 import cv2 as cv
 import numpy as np
+import os
 
-haar_cascasde_eye = cv.CascadeClassifier("classifier/haarcascade_eye.xml")
+package_directory = os.path.dirname(os.path.abspath(__file__))
+eye_path = os.path.join(package_directory, "classifier/haarcascade_eye.xml")
+face_path = os.path.join(package_directory, "classifier/haarcascade_frontalface_default.xml")
+haar_cascasde_eye = cv.CascadeClassifier(eye_path)
 # Default frontal face xml => more accurate but slower
-# haar_cascasde_face = cv.CascadeClassifier("classifier/haarcascade_frontalface_default.xml")
+haar_cascasde_face = cv.CascadeClassifier(face_path)
 # Lighter frontal face xml => less accurate (accurate enuf) but faster
-haar_cascasde_face = cv.CascadeClassifier("classifier/lbpcascaade_frontalface_improved.xml")
+# haar_cascasde_face = cv.CascadeClassifier("classifier/lbpcascaade_frontalface_improved.xml")
 
 
 # Haarcascade basic detection
