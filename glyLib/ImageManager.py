@@ -41,13 +41,13 @@ class ImageManager:
     haarcascade_face = cv.CascadeClassifier(face_path)
     # haarcascade_face = cv.CascadeClassifier("classifier/lbpcascaade_frontalface_improved.xml")
     # haarcascade_nose = cv.CascadeClassifier("classifier/haarcascade_nose.xml")
-    HARDCODED_similarSizeScale = 0.7
+    HARDCODED_similarSizeScale = 0.5
     HARDCODED_pairOfEyesDistanceRange = (1.5, 3.5)
     # eye and face min and max dimensions in a 500pixel x ? pixel images
-    HARDCODED_eyeMinDimensions = (40, 40)
+    HARDCODED_eyeMinDimensions = (10, 10)
     HARDCODED_eyeMaxDimensions = (120, 120)
-    HARDCODED_faceMinDimensions = (80, 80)
-    HARDCODED_faceMaxDimensions = (500, 500)
+    HARDCODED_faceMinDimensions = (60, 60)
+    HARDCODED_faceMaxDimensions = (300, 300)
 
     def __init__(self, img):
         """
@@ -561,6 +561,22 @@ class ImageManager:
 
             faces.append(biggestFace)
 
+        # Removing overlapping faces
+        uniqueFaces = []
+
+        for i in range(len(faces) - 1):
+            for j in range(i,len(faces)):
+                if faces[i].similarSize(faces[j], self.HARDCODED_similarSizeScale) and faces[i].overlap(faces[j]):
+                    radiusOne = faces[i].center.distTo(faces[i].upperLeft)
+                    radiusTwo = faces[j].center.distTo(faces[j].upperLeft)
+                    if radiusOne < radiusTwo:
+                        faces.pop(j)
+                        j -= 1
+                    else:
+                        faces.pop(i)
+                        i -= 2
+                        j -= 1
+                        break
         return faces
 
 
@@ -603,14 +619,13 @@ class ImageManager:
         for angle in angles:
             (detectedAreas, rotatedCenter) = self.HELPER_runHaarDetectionCounterClockwiseAngle(self.haarcascade_face, self.HARDCODED_faceMinDimensions, self.HARDCODED_faceMaxDimensions, angle, scaleFactor, minNeighbors)
             
-            print(detectedAreas)
             for area in detectedAreas:
                 face = DetectedFace((area.upperLeft.x, area.upperLeft.y), area.dimensions, angle)
                 face.rotateAreaClockwise(rotatedCenter, angle)
 
                 unique = True
                 for detectedFace in detectedFaces:
-                    if face.similarSize(detectedFace) and face.overlap(detectedFace):
+                    if face.similarSize(detectedFace, self.HARDCODED_similarSizeScale) and face.overlap(detectedFace):
                         unique = False
                         break
                 

@@ -1,6 +1,8 @@
 from concurrent.futures import thread
 from threading import Thread
 import threading
+from time import sleep
+from tkinter.messagebox import NO
 
 class FrameThread(Thread):
     def __init__(self, threadID, frameID, customFunction, args, endPoint):

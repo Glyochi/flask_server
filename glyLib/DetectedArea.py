@@ -63,6 +63,7 @@ class DetectedArea:
             :param origin: the point where detectedArea is going to rotate around
             :param angle: the angle the detectedArea is going to rotate by
         """
+        angle = angle % 360
         self.upperLeft = self.upperLeft.rotatePointClockwise(origin, angle)
         self.upperRight = self.upperRight.rotatePointClockwise(origin, angle)
         self.lowerLeft = self.lowerLeft.rotatePointClockwise(origin, angle)
