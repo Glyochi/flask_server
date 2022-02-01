@@ -81,7 +81,10 @@ class ImageManager:
         rotatedGrayImage = rotateCounterClockwise(self.grayImage, angle)
             
         # Collecting raw detected objects received from detectMultiScale
-        rawObjs = detector.detectMultiScale(rotatedGrayImage, scaleFactor = scaleFactor, minNeighbors = minNeighbors, minSize = minDimensions, maxSize = maxDimensions)
+        try:
+            rawObjs = detector.detectMultiScale(rotatedGrayImage, scaleFactor = scaleFactor, minNeighbors = minNeighbors, minSize = minDimensions, maxSize = maxDimensions)
+        except cv.error as e:
+            rawObjs = []
             
         detectedAreas = []
         rotatedCenter = Point(rotatedGrayImage.shape[1]/2, rotatedGrayImage.shape[0]/2)
@@ -344,7 +347,10 @@ class ImageManager:
 
 
             # find the face in the cropped Area
-            detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            try:
+                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            except cv.error as e:
+                detectedFaces = []
 
 
             # DEBUGING AREA
@@ -358,7 +364,10 @@ class ImageManager:
             if len(detectedFaces) == 0:
                 # Scan the image upside down in case of upside down faces
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except cv.error as e:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True
@@ -380,7 +389,10 @@ class ImageManager:
 
                 # Scan the image upside down in case of upside down faces
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except cv.error as e:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True
@@ -480,7 +492,11 @@ class ImageManager:
 
 
             # find the face in the cropped Area
-            detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            try:
+                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+            except cv.error as e:
+                detectedFaces = []
+
             boolUpSideDown = False
 
 
@@ -488,7 +504,10 @@ class ImageManager:
             if len(detectedFaces) == 0:
                 # Scan the image upside down
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except cv.error as e:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True
@@ -510,7 +529,10 @@ class ImageManager:
 
                 # Scan the image upside down in case of upside down faces
                 rotatedCrop = rotateClockwise(rotatedCrop, 180)
-                detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                try:
+                    detectedFaces = self.haarcascade_face.detectMultiScale(rotatedCrop, scaleFactor, minNeighbors, minSize = self.HARDCODED_faceMinDimensions, maxSize = self.HARDCODED_faceMaxDimensions)
+                except:
+                    detectedFaces = []
                 if len(detectedFaces) == 0:
                     continue
                 boolUpSideDown = True

@@ -13,8 +13,16 @@ from glyLib.EnhancedServerVideoManager import EnhancedServerVideoManager
 from glyLib.ImprovedEnhancedServerVideoManager import ImprovedEnhancedServerVideoManager
 from glyLib import GlyLibrary
 
+# This is to fix "ValueError: Too many packets in payload"
+from engineio.payload import Payload
+
+
 app = Flask(__name__, template_folder="templates")
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+Payload.max_decode_packets = 500
+
+
 SVMDict = dict()
 
 

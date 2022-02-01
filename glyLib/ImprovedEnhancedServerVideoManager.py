@@ -16,6 +16,7 @@ HARDCODED_eyeMaxDimensions = (120, 120)
 HARDCODED_faceMinDimensions = (60, 60)
 HARDCODED_faceMaxDimensions = (300, 300)
 
+
 class ImprovedEnhancedServerVideoManager:
     def __init__(self, frameRate, socket, clientID, coordinates):
         self.coordinates = coordinates
@@ -24,10 +25,17 @@ class ImprovedEnhancedServerVideoManager:
         self.playing = True
         self.frameRate = frameRate
 
-        self.frameThreads = [None, None, None, None,
-                             None, None, None, None, None, None]
-        self.freeThreadIDs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        self.threadCount = 10
+        self.frameThreads = [None, None, None, None, None,
+                             None, None, None, None, None,
+                             None, None, None, None, None,
+                             None, None, None, None, None,
+                             None, None, None, None, None,
+                             None, None, None, None, None,
+                             None, None, None, None, None,
+                             None, None, None, None, None]
+        self.freeThreadIDs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                              19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+        self.threadCount = 40
         self.returnedFrameID = 0
 
         self.socket = socket
@@ -70,7 +78,6 @@ class ImprovedEnhancedServerVideoManager:
             self.macroFaceDetectionThread = None
 
     def processNextFrame(self, frame, frameID, endPoint):
-        # Its pretty impossible to have all 5 threads taken up
         if not len(self.freeThreadIDs):
             print('*****************************************************************************************\n*  ERROR: in VideoManager file: No more free threads. Sir can I have sum more threads?  *\n*****************************************************************************************\n')
             return
@@ -104,7 +111,8 @@ class ImprovedEnhancedServerVideoManager:
                 if self.currentDetectedFacesManager == None or len(self.currentDetectedFacesManager) == 0:
                     self.currentDetectedFacesManager = []
                     for newFace in delayDetectedFaces:
-                        self.currentDetectedFacesManager.append([newFace, self.lastMacroFrameID])
+                        self.currentDetectedFacesManager.append(
+                            [newFace, self.lastMacroFrameID])
                 else:
                     for delayFace in delayDetectedFaces:
                         alreadyFound = False
@@ -120,7 +128,8 @@ class ImprovedEnhancedServerVideoManager:
                             tempNewFaces.append(delayFace)
 
                     for newFace in tempNewFaces:
-                        self.currentDetectedFacesManager.append([newFace, self.lastMacroFrameID])
+                        self.currentDetectedFacesManager.append(
+                            [newFace, self.lastMacroFrameID])
 
             # Run the next macro facial detection (my implementation) in a seperate thread to avoid interfering with updating new frames
             args = {
@@ -163,11 +172,11 @@ def MicroFacialDetection_findFacesBasedOnCurrentDetectedFacesList(args):
     iesvm = args.get('iesvm')
     frame = args.get('frame')
     frameID = args.get('frameID')
-    copy_currentDetectedFacesManager = args.get('copy_currentDetectedFacesManager')
+    copy_currentDetectedFacesManager = args.get(
+        'copy_currentDetectedFacesManager')
 
     # updating the detected faces in the last frame by searching around their area
     if copy_currentDetectedFacesManager != None and len(copy_currentDetectedFacesManager) != 0:
-
 
         bool_loop = True
         index_currentDetectedFacesManager = 0
@@ -225,11 +234,9 @@ def MicroFacialDetection_findFacesBasedOnCurrentDetectedFacesList(args):
             croppedPotentialFaceCenter = Point(
                 croppedPotentialFace.shape[1]/2, croppedPotentialFace.shape[0]/2)
 
-
             # gray scale the image
             grayCroppedPotentialFace = cv.cvtColor(
                 croppedPotentialFace, cv.COLOR_BGR2GRAY)
-
 
             # run basic haarcascade facial detection on it
             # CAN IMPROVE PERFORMANCE BY ADDING APPROPRIATE MINSIZE AND MAXSIZE ? CAN IMPROVE PERFORMANCE BY ADDING APPROPRIATE MINSIZE AND MAXSIZE ? CAN IMPROVE PERFORMANCE BY ADDING APPROPRIATE MINSIZE AND MAXSIZE ?
@@ -355,7 +362,7 @@ def MicroFacialDetection_findFacesBasedOnCurrentDetectedFacesList(args):
                 rotatedFrameOrigin, biggestFace.counterClockwiseAngle)
             biggestFace.projectArea(
                 rotatedFrameOrigin, frameOrigin)
-            
+
             if biggestFace.leftEye != None:
                 biggestFace.leftEye.projectArea(
                     croppedPotentialFaceCenter, rotatedFaceCenter)
@@ -371,8 +378,6 @@ def MicroFacialDetection_findFacesBasedOnCurrentDetectedFacesList(args):
                     rotatedFrameOrigin, biggestFace.counterClockwiseAngle)
                 biggestFace.rightEye.projectArea(
                     rotatedFrameOrigin, frameOrigin)
-
-            
 
             # update the face's location and reset last face found ID to frameID
             copy_currentDetectedFacesManager[index_currentDetectedFacesManager][0] = biggestFace
@@ -398,7 +403,6 @@ def emitter(videoManager):
             i = 0
             frameThreads = videoManager.frameThreads
             freeThreadIDs = videoManager.freeThreadIDs
-        
 
             latestFrameIDIndex = -1
             latestFrameID = -1
@@ -408,7 +412,6 @@ def emitter(videoManager):
             while i < len(frameThreads):
 
                 # Find the thread with the latest frameID and has finished running and output is not None (this is a workaround for a bug, output value is not yet initialized)
-                
 
                 if frameThreads[i] != None and not frameThreads[i].is_alive() and frameThreads[i].output != None:
                     if frameThreads[i].frameID > latestFrameID:
@@ -418,8 +421,6 @@ def emitter(videoManager):
                 i += 1
 
             videoManager.threadLock.release()
-
-
 
             if latestFrameID > -1:
                 latestThread = frameThreads[latestFrameIDIndex]
@@ -508,12 +509,11 @@ def emitter(videoManager):
                         videoManager.threadLock.acquire()
                         videoManager.currentDetectedFacesManager = latestThread.output
                         videoManager.threadLock.release()
-            
+
                 for i in range(len(frameThreads)):
                     if frameThreads[i] != None and frameThreads[i].frameID <= latestFrameID:
                         frameThreads[i] = None
                         freeThreadIDs.append(i)
-
 
             time.sleep(1/(3*videoManager.frameRate))
         else:

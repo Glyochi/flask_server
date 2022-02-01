@@ -20,28 +20,35 @@ def haarcascade_FacialDetection(image, scaleFactor, minNeighbors, minSize = None
     Just run the haarcascade facial detection on the image without modifying the input image
         :return the detectMultiScale output
     """
-    if minSize == None:
+    
+    try:
+        if minSize == None:
+            if maxSize == None:
+                return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors)
+            return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
         if maxSize == None:
-            return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors)
-        return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
-    if maxSize == None:
-        return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
-    return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
-
+            return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
+        return haar_cascasde_face.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
+    except cv.error as e:
+        # OpenCV sometimes weird, so in those cases where errors were thrown just catch them and return an empty array
+        return []
 
 def haarcascade_EyeDetection(image, scaleFactor, minNeighbors, minSize = None, maxSize = None):
     """
     Just run the haarcascade eye detection on the image without modifying the input image
         :return the detectMultiScale output
     """
-    if minSize == None:
+    try:
+        if minSize == None:
+            if maxSize == None:
+                return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors)
+            return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
         if maxSize == None:
-            return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors)
-        return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, maxSize = maxSize)
-    if maxSize == None:
-        return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
-    return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
-    
+            return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize)
+        return haar_cascasde_eye.detectMultiScale(image, scaleFactor, minNeighbors, minSize = minSize, maxSize = maxSize)
+    except cv.error as e:
+        # OpenCV sometimes weird, so in those cases where errors were thrown just catch them and return an empty array
+        return []    
 
 
 # Rotation
